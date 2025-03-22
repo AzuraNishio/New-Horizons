@@ -11,6 +11,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Quaternionf;
+import org.joml.Vector3dc;
 import org.joml.Vector3f;
 
 public class FlashlightRenderer extends AreaLight {
@@ -29,6 +30,7 @@ public class FlashlightRenderer extends AreaLight {
         this.setColor(1.0f, 0.9f, 0.647f);
         this.setBrightness(1.5f);
         areaLight2.setDistance(50f);
+        areaLight2.setPosition(areaLight2.getPosition().x(),areaLight2.getPosition().y()-1,areaLight2.getPosition().z());
         areaLight2.setSize(0.15, 0.15);
         areaLight2.setBrightness(2.0f);
         areaLight2.setAngle(0.25f);
@@ -45,6 +47,7 @@ public class FlashlightRenderer extends AreaLight {
             this.setAngle((float) Math.toRadians(35));
             VeilRenderSystem.renderer().getLightRenderer().addLight(this);
             VeilRenderSystem.renderer().getLightRenderer().addLight(areaLight2);
+            //VeilRenderSystem.renderer().
             playToggleSound();
         } else {
             VeilRenderSystem.renderer().getLightRenderer().removeLight(this);
