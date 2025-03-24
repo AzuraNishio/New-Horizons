@@ -4,6 +4,7 @@ import foundry.veil.Veil;
 import nazario.liby.api.registry.auto.LibyEntrypoints;
 import nazario.liby.api.registry.auto.LibyRegistryLoader;
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.util.Identifier;
 import org.copycraftDev.new_horizons.core.items.ModItems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,5 +18,9 @@ public class NewHorizonsMain implements ModInitializer {
         LibyRegistryLoader.load("org.copycraftDev.new_horizons", LOGGER, LibyEntrypoints.MAIN);
 
         Veil.init();
+    }
+
+    public static Identifier id(String name){
+        return Identifier.of(MOD_ID, name);
     }
 }
