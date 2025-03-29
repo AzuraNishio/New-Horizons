@@ -2,7 +2,6 @@ package org.copycraftDev.new_horizons.client.rendering;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
@@ -29,14 +28,11 @@ public class LazuliHudRenderStep {
                 return; // Skip rendering if data isn't set yet
             }
 
-            Vec3d cameraPos = camera.getPos();
-
-            MinecraftClient client = MinecraftClient.getInstance();
             Tessellator tessellator = Tessellator.getInstance();
-            BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR_NORMAL);
+
 
             // Load shader
-            TEST_SHADER = LazuliShaderRegistry.getShader(ModShaders.PLANET1_SHADER);
+            TEST_SHADER = LazuliShaderRegistry.getShader(ModShaders.RENDER_TYPE_PLANET);
             if (TEST_SHADER == null) {
                 return; // Shader not loaded yet, skip rendering
             }
@@ -61,12 +57,15 @@ public class LazuliHudRenderStep {
 
             Matrix4f matrix4f2 = matrixStack.peek().getPositionMatrix();
 
-            // Camera position
-            float x = (float) -cameraPos.x;
-            float y = (float) -cameraPos.y;
-            float z = (float) -cameraPos.z;
+            BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR_NORMAL);
+            LazuliGeometryBuilder.buildTexturedSphere(50, 2, new Vec3d(0,0,0), camera, matrix4f2, bufferBuilder);
+            BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
 
-            LazuliGeometryBuilder.buildTexturedSphere(20, 2, new Vec3d(0,0,0), camera, matrix4f2, bufferBuilder);
+            bufferBuilder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR_NORMAL);
+            RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+            RenderSystem.setShaderColor(0.1F, 0.3F, 1.0F, 0.1F);
+            LazuliGeometryBuilder.buildTexturedSphere(30, 2.2F, new Vec3d(0,0,0), camera, matrix4f2, bufferBuilder);
+            BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
 
 
 
@@ -82,7 +81,7 @@ public class LazuliHudRenderStep {
 //            bufferBuilder.vertex(matrix4f2, 1 + x, 0 + y, -1 + z).texture(1,0);
 
             // Draw the buffer
-            BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+
 
             // Cleanup
             RenderSystem.disableBlend();

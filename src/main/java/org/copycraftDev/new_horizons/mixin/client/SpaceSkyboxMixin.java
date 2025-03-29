@@ -28,7 +28,7 @@ import java.util.function.Supplier;
 public class SpaceSkyboxMixin {
 
     @Unique
-    private static net.minecraft.client.gl.ShaderProgram TEST_SHADER = LazuliShaderRegistry.getShader(ModShaders.PLANET1_SHADER);
+    private static net.minecraft.client.gl.ShaderProgram TEST_SHADER = LazuliShaderRegistry.getShader(ModShaders.RENDER_TYPE_PLANET);
     @Unique
     private static final Identifier TEST_TEXTURE = Identifier.of("new_horizons", "textures/test_textures/texture_test.png");
     @Unique
@@ -71,7 +71,7 @@ public class SpaceSkyboxMixin {
 
 
         //==================================[RenderSystem setup]=========================================================
-        TEST_SHADER = LazuliShaderRegistry.getShader(ModShaders.PLANET1_SHADER);
+        TEST_SHADER = LazuliShaderRegistry.getShader(ModShaders.RENDER_TYPE_PLANET);
         Supplier<net.minecraft.client.gl.ShaderProgram> meow = () -> TEST_SHADER;
         RenderSystem.setShader(meow);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
