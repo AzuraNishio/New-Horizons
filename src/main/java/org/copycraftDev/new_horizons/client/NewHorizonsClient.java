@@ -13,7 +13,6 @@ public class NewHorizonsClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         Veil.init();
-        ModShaders.registerShaders();
         LazuliHudRenderStep.register();
 
 
