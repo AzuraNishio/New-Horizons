@@ -9,6 +9,7 @@ uniform mat4 ProjMat;
 uniform sampler2D Sampler1;
 
 out vec2 texCoord0;
+out vec3 normal;
 
 #define HEIGHTMAP_MULTIPLIER 0.15
 
@@ -19,7 +20,7 @@ void main() {
     vec3 displacedPosition = Position + (Normal * height);
 
     gl_Position = ProjMat * ModelViewMat * vec4(displacedPosition, 1.0);
-
+    normal = Normal;
     texCoord0 = UV0;
 }
 
