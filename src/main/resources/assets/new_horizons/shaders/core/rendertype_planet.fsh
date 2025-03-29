@@ -1,6 +1,7 @@
 #version 150
 
 uniform sampler2D Sampler0;
+uniform sampler2D Sampler2;
 
 uniform vec4 ColorModulator;
 
@@ -21,12 +22,38 @@ void main() {
     
     float lightInstensity = 3.;
 
-    float shadow = max(dot(normal, light), 0.0) * lightInstensity;
+    vec3 normalMap = vec3(texture(Sampler2, texCoord0).rg,0.5) * 2.0 - 1.0;
+	
+	normalMap *= 2.;
+
+    vec3 tNormal = normalize(normal + normalMap);
+
+    float shadow = max(dot(tNormal, light), 0.05) * lightInstensity;
+
     
     color.rgb *= shadow;
+    
+    //color.rgb = normalMap;
 
     fragColor = color * ColorModulator;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
