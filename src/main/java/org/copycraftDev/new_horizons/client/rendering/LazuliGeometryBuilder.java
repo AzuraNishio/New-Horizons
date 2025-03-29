@@ -33,38 +33,38 @@ public class LazuliGeometryBuilder {
             nextAngle2 = angle2 - (float) (Math.PI / res);
             thisRingRadius = (float) Math.sin(angle2) * radius;
             nextRingRadius = (float) Math.sin(nextAngle2) * radius;
-            double thisRingY = Math.cos(angle2) * radius + y;
-            double nextRingY = Math.cos(nextAngle2) * radius + y;
+            double thisRingY = Math.cos(angle2) * radius;
+            double nextRingY = Math.cos(nextAngle2) * radius;
 
             float angle = 0;
             for (int i = 0; i < res * 2; i++) {
 
                 //Vertex 1
                 Vec3d v1 = new Vec3d(
-                        Math.sin(angle) * thisRingRadius + x,
+                        Math.sin(angle) * thisRingRadius,
                         thisRingY,
-                        Math.cos(angle) * thisRingRadius + z
+                        Math.cos(angle) * thisRingRadius
                 );
                 //Vertex 2
                 Vec3d v2 = new Vec3d(
-                        Math.sin(angle) * nextRingRadius + x,
+                        Math.sin(angle) * nextRingRadius,
                         nextRingY,
-                        Math.cos(angle) * nextRingRadius + z
+                        Math.cos(angle) * nextRingRadius
                 );
 
                 angle += (float) (Math.PI / res);
 
                 //Vertex 3
                 Vec3d v3 = new Vec3d(
-                        Math.sin(angle) * nextRingRadius + x,
+                        Math.sin(angle) * nextRingRadius,
                         nextRingY,
-                        Math.cos(angle) * nextRingRadius + z
+                        Math.cos(angle) * nextRingRadius
                 );
                 //Vertex 4
                 Vec3d v4 = new Vec3d(
-                        Math.sin(angle) * thisRingRadius + x,
+                        Math.sin(angle) * thisRingRadius,
                         thisRingY,
-                        Math.cos(angle) * thisRingRadius + z
+                        Math.cos(angle) * thisRingRadius
                 );
 
 
@@ -76,10 +76,10 @@ public class LazuliGeometryBuilder {
                 double V2 = nextAngle2 / Math.PI;
 
                 //actually add the vertexes
-                addVertex(v1, U1, V1, matrix4f2, bufferBuilder);
-                addVertex(v2, U1, V2, matrix4f2, bufferBuilder);
-                addVertex(v3, U2, V2, matrix4f2, bufferBuilder);
-                addVertex(v4, U2, V1, matrix4f2, bufferBuilder);
+                addVertexTextureNormal(v1.subtract(displacement), U1, V1, v1, matrix4f2, bufferBuilder);
+                addVertexTextureNormal(v2.subtract(displacement), U1, V2, v2, matrix4f2, bufferBuilder);
+                addVertexTextureNormal(v3.subtract(displacement), U2, V2, v3, matrix4f2, bufferBuilder);
+                addVertexTextureNormal(v4.subtract(displacement), U2, V1, v4, matrix4f2, bufferBuilder);
             }
         }
     }
@@ -99,10 +99,10 @@ public class LazuliGeometryBuilder {
         float y = (float) -displacement.y;
         float z = (float) -displacement.z;
 
-        addVertex(new Vec3d(x, y, z), 0, 0, matrix4f2, bufferBuilder);
-        addVertex(new Vec3d(x, y + radius, z), 0, 1, matrix4f2, bufferBuilder);
-        addVertex(new Vec3d(x + radius, y + radius, z), 1, 1, matrix4f2, bufferBuilder);
-        addVertex(new Vec3d(x + radius, y, z), 1, 0, matrix4f2, bufferBuilder);
+//        addVertex(new Vec3d(x, y, z), 0, 0, matrix4f2, bufferBuilder);
+//        addVertex(new Vec3d(x, y + radius, z), 0, 1, matrix4f2, bufferBuilder);
+//        addVertex(new Vec3d(x + radius, y + radius, z), 1, 1, matrix4f2, bufferBuilder);
+//        addVertex(new Vec3d(x + radius, y, z), 1, 0, matrix4f2, bufferBuilder);
     }
 
     /**
@@ -114,8 +114,8 @@ public class LazuliGeometryBuilder {
      * @param matrix4f2     The transformation matrix
      * @param bufferBuilder The buffer to store vertices
      */
-    private static void addVertex(Vec3d pos, double u, double v, Matrix4f matrix4f2, BufferBuilder bufferBuilder) {
-        Vec3d normal = pos.normalize();
+    private static void addVertexTextureNormal(Vec3d pos, double u, double v, Vec3d normal, Matrix4f matrix4f2, BufferBuilder bufferBuilder) {
+        normal = normal.normalize();
 
         bufferBuilder.vertex(matrix4f2, (float) pos.x, (float) pos.y, (float) pos.z)
                 .texture((float) u, (float) v)
