@@ -1,21 +1,19 @@
 package org.copycraftDev.new_horizons.mixin.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import foundry.veil.Veil;
-import foundry.veil.api.client.render.VeilRenderSystem;
-import foundry.veil.api.client.render.shader.ShaderManager;
-import foundry.veil.api.client.render.shader.ShaderSourceSet;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
-import org.copycraftDev.new_horizons.client.LazuliShaderRegistry;
-import org.copycraftDev.new_horizons.client.ModShaders;
+import org.copycraftDev.new_horizons.client.rendering.LazuliHudRenderStep;
+import org.copycraftDev.new_horizons.client.rendering.LazuliShaderRegistry;
+import org.copycraftDev.new_horizons.client.rendering.ModShaders;
 import org.joml.Matrix4f;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL20;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 
-import java.util.HashSet;
+import java.nio.FloatBuffer;
 import java.util.function.Supplier;
 
 @Mixin(WorldRenderer.class)
@@ -53,7 +51,11 @@ public class SpaceSkyboxMixin {
         ClientWorld world = client.world;
         Tessellator tessellator = Tessellator.getInstance();
 
+
+
         //==================================[Matrix black magic]=========================================================
+        LazuliHudRenderStep.setThings(camera, matrix4f, new MatrixStack());
+
         MatrixStack matrixStack = new MatrixStack();
         matrixStack.multiplyPositionMatrix(matrix4f);
         matrixStack.push();
@@ -66,6 +68,8 @@ public class SpaceSkyboxMixin {
 
 
 
+
+
         //==================================[RenderSystem setup]=========================================================
         TEST_SHADER = LazuliShaderRegistry.getShader(ModShaders.PLANET1_SHADER);
         Supplier<net.minecraft.client.gl.ShaderProgram> meow = () -> TEST_SHADER;
@@ -73,6 +77,27 @@ public class SpaceSkyboxMixin {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
         RenderSystem.depthMask(true);
+        //RenderSystem.disableDepthTest();
+        RenderSystem.assertOnRenderThread(); // Ensure we are on the render thread
+        ShaderProgram shader = TEST_SHADER; // Your shader instance
+
+        if (shader != null) {
+            int uniformLocation = GL20.glGetUniformLocation(shader.getGlRef(), "cameraPos");
+            if (uniformLocation != -1) { // Make sure the uniform exists
+                // Create a FloatBuffer with 3 values (vec3)
+                FloatBuffer buffer = BufferUtils.createFloatBuffer(3);
+                buffer.put(new float[]{
+                        (float) camera.getPos().x,
+                        (float) camera.getPos().y,
+                        (float) camera.getPos().z
+                });
+                buffer.flip(); // Prepare the buffer for reading
+
+                // Pass the FloatBuffer to the shader
+                RenderSystem.glUniform3(uniformLocation, buffer);
+            }
+        }
+
         RenderSystem.disableCull();
 
 
@@ -81,23 +106,24 @@ public class SpaceSkyboxMixin {
         float y = (float) camera.getPos().x;
         float z = (float) camera.getPos().y;
 
-        BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.DrawMode.TRIANGLE_FAN, VertexFormats.POSITION);
+        //BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.DrawMode.TRIANGLE_FAN, VertexFormats.POSITION);
 
-        bufferBuilder.vertex(matrix4f2, 1+x, 1+y, 1+z).light(1);
-        bufferBuilder.vertex(matrix4f2, -1+x, 1+y, 1+z).light(1);
-        bufferBuilder.vertex(matrix4f2, -1+x, -1+y, 1+z).light(1);
-        bufferBuilder.vertex(matrix4f2, 1+x, -1+y, 1+z).light(1);
+//        bufferBuilder.vertex(matrix4f2, 1+x, 1+y, 1+z).light(1);
+//        bufferBuilder.vertex(matrix4f2, -1+x, 1+y, 1+z).light(1);
+//        bufferBuilder.vertex(matrix4f2, -1+x, -1+y, 1+z).light(1);
+//        bufferBuilder.vertex(matrix4f2, 1+x, -1+y, 1+z).light(1);
 
 
 
         //==================================[closing]=========================================================
-        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
-        matrixStack.pop();
+        //BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+        //matrixStack.pop();
         //making things ready for next render layer
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1F);
         RenderSystem.depthMask(true);
         RenderSystem.setShaderFogColor(0,0,0);
         RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        RenderSystem.enableDepthTest();
 
         ci.cancel();
 
